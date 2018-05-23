@@ -12,7 +12,7 @@
 typedef struct {
     u32 width;
     u32 height;
-    const u32* buf;
+    const char* buf;
 } Bitmap;
 
 void drawStart();

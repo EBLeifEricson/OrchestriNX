@@ -66,7 +66,7 @@ void drawBitmap(int x, int y, Bitmap bmp) {
         for (xx = x; xx < x + bmp.width; ++xx) {
             if (xx >= 0 && xx < fbwidth && yy >= 0 && yy < fbheight) {
                 int pos = yy * fbwidth + xx;
-                framebuf[pos] = bmp.buf[pos];
+                framebuf[pos] = RGBA8_MAXALPHA(bmp.buf[pos*3+0], bmp.buf[pos*3+1], bmp.buf[pos*3+2]);
             }
         }
     }
@@ -86,7 +86,7 @@ Bitmap* openFileBitmap(const char* path, int width, int height) {
 	Bitmap* bitmap = (Bitmap*)malloc(sizeof(Bitmap));
 	bitmap->width = (u32)width;
 	bitmap->height = (u32)height;
-	bitmap->buf = (u32*)buf;
+	bitmap->buf = buf;
 	
 	return bitmap;
 }

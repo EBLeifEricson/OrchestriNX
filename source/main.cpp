@@ -381,7 +381,7 @@ int main(int argc, char **argv)
 		}
 		
 		drawStart();
-		drawBitmap(0, 0, *background_temp);
+		drawBitmap(400, 240, *background_temp);
 
         gfxFlushBuffers();
         gfxSwapBuffers();
