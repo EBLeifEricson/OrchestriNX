@@ -300,12 +300,31 @@ int main(int argc, char **argv)
 	// Init graphics
     gfxInitDefault();
 	
+	consoleInit(NULL);
+	
+	printf("OrchestriNX by LeifEricson\n");
+	
 	// TODO: Load font
 	
 	// TODO: Load textures and instrument icons
 	
 	// Temp background from the 3DS version, a new HD one will have to be made
+	printf("Opening test bitmap...\n");
 	Bitmap* background_temp = openFileBitmap("/switch/orchestrinx/res/oldbg_400_240.bin", 400, 240);
+	if (!background_temp) {
+		printf("Error opening bitmap\n");
+		fflush(stdout);
+		svcSleepThread(5000000000);
+		exit(1);
+	}
+	else {
+		printf("Bitmap opened. First 100 RGB values:\n\n");
+	}
+	for (int i = 0; i < 300; i+=3) {
+		printf("%d%d%d ", background_temp->buf[i], background_temp->buf[i+1], background_temp->buf[i+2]);
+	}
+	
+	printf("\nCreating directory structure...\n");
 	
 	// Create data path
     mkdir("/switch", 0777);
@@ -322,6 +341,8 @@ int main(int argc, char **argv)
         if (f!=NULL || songs[i].name=="NULL") nsongs++;
         fclose(f);
     }
+	
+	printf("Song count = %d\n", nsongs);
 	
 	// TODO: Initialize audio
 	
@@ -357,6 +378,8 @@ int main(int argc, char **argv)
 	bool wakertimerdir = false;
 	u32 rhythm = 3;
 	int separation = 0;
+	
+	printf("Entering main loop...\n");
 
     // Main loop
     while(appletMainLoop())
@@ -364,7 +387,6 @@ int main(int argc, char **argv)
         //Scan all the inputs. This should be done once for each frame
         hidScanInput();
 
-        // Your code goes here
 
         //hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
 		u32 keys = hidKeysDown(CONTROLLER_P1_AUTO);
@@ -380,8 +402,8 @@ int main(int argc, char **argv)
 			break;
 		}
 		
-		drawStart();
-		drawBitmap(400, 240, *background_temp);
+		//drawStart();
+		//drawBitmap(400, 240, background_temp);
 
         gfxFlushBuffers();
         gfxSwapBuffers();

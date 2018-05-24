@@ -1,11 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#ifdef SWITCH
 #include <switch.h>
-#else
-#include "switchdefs.h"
-#endif
 
 #include "draw.h"
 
@@ -60,13 +56,13 @@ void drawFillRect(int x1, int y1, int x2, int y2, u32 color) {
     }
 }
 
-void drawBitmap(int x, int y, Bitmap bmp) {
+void drawBitmap(int x, int y, Bitmap* bmp) {
     int xx, yy;
-    for (yy = y; yy < y + bmp.height; ++yy) {
-        for (xx = x; xx < x + bmp.width; ++xx) {
+    for (yy = y; yy < y + bmp->height; ++yy) {
+        for (xx = x; xx < x + bmp->width; ++xx) {
             if (xx >= 0 && xx < fbwidth && yy >= 0 && yy < fbheight) {
                 int pos = yy * fbwidth + xx;
-                framebuf[pos] = RGBA8_MAXALPHA(bmp.buf[pos*3+0], bmp.buf[pos*3+1], bmp.buf[pos*3+2]);
+                framebuf[pos] = RGBA8_MAXALPHA(bmp->buf[pos*3+0], bmp->buf[pos*3+1], bmp->buf[pos*3+2]);
             }
         }
     }
@@ -74,6 +70,9 @@ void drawBitmap(int x, int y, Bitmap bmp) {
 
 Bitmap* openFileBitmap(const char* path, int width, int height) {
 	FILE* bmp = fopen(path, "rb");
+	if (!bmp) {
+		return NULL;
+	}
 	fseek(bmp, 0, SEEK_END);
 	long size = ftell(bmp);
 	fseek(bmp, 0, SEEK_SET);
