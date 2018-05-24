@@ -304,31 +304,6 @@ int main(int argc, char **argv)
 	
 	printf("OrchestriNX by LeifEricson\n");
 	
-	// TODO: Load font
-	fontInitialize();
-	
-	// TODO: Load textures and instrument icons
-	
-	// Temp background from the 3DS version, a new HD one will have to be made
-	printf("Opening test bitmap...\n");
-	Bitmap* background_temp = openFileBitmap("/switch/orchestrinx/res/oldbg_1280_720.bin", 1280, 720);
-	if (!background_temp) {
-		printf("Error opening bitmap\n");
-		fflush(stdout);
-		svcSleepThread(5000000000);
-		exit(1);
-	}
-	else {
-		printf("Bitmap opened. First 100 RGB values:\n\n");
-	}
-	for (int i = 0; i < 300; i+=3) {
-		printf("%d%d%d ", background_temp->buf[i], background_temp->buf[i+1], background_temp->buf[i+2]);
-	}
-	Bitmap* iicons[INSTRUMENTCOUNT];
-	for (u32 i = 0; i < INSTRUMENTCOUNT; i++) {
-		iicons[i] = openFileBitmap(("/switch/orchestrinx/res/instruments/"+instruments[i].name+".bin").c_str(), 48, 48);
-	}
-	
 	printf("\nCreating directory structure...\n");
 	
 	// Create data path
@@ -336,6 +311,28 @@ int main(int argc, char **argv)
     mkdir("/switch/orchestrinx", 0777);
     mkdir("/switch/orchestrinx/res", 0777);
     mkdir("/switch/orchestrinx/res/songs", 0777);
+	
+	// TODO: Load font
+	fontInitialize();
+	
+	// TODO: Load textures and instrument icons
+/*  
+    sf2d_texture *oinsts = sfil_load_PNG_file("romfs:/o_instruments.png", SF2D_PLACE_RAM);
+    sf2d_texture *osongs = sfil_load_PNG_file("romfs:/o_songs.png", SF2D_PLACE_RAM); */
+	
+	// Temp background from the 3DS version
+	printf("Opening test bitmap...\n");
+	Bitmap* background_temp = openFileBitmap("/switch/orchestrinx/res/oldbg_1280_720.bin", 1280, 720);
+	
+	// More temp 3DS graphics
+	Bitmap* inventory = scaleBitmap(openFileBitmap("/switch/orchestrinx/res/inventory_248_200.bin", 248, 200), 2);
+	Bitmap* optionblock = scaleBitmap(openFileBitmap("/switch/orchestrinx/res/optionblock_52_39.bin", 52, 39), 2);
+	
+	// Temp instrument icons from you guessed it, the 3DS
+	Bitmap* iicons[INSTRUMENTCOUNT];
+	for (u32 i = 0; i < INSTRUMENTCOUNT; i++) {
+		iicons[i] = scaleBitmap(openFileBitmap(("/switch/orchestrinx/res/instruments/"+instruments[i].name+".bin").c_str(), 48, 48), 2);
+	}
 	
 	// Number of songs found on the SD card
     int nsongs = 0;
@@ -411,9 +408,10 @@ int main(int argc, char **argv)
 		drawClearScreen(RGBA8_MAXALPHA(0, 0, 0));
 		drawBitmap(0, 0, background_temp);
 		for (int i = 0; i < INSTRUMENTCOUNT; ++i) {
-			drawBitmapA(48*i, 5, iicons[i], RGBA8_MAXALPHA(0, 0xFF, 0));
+			drawBitmapA(48*2*i, 5, iicons[i], RGBA8_MAXALPHA(0, 0xFF, 0));
 		}
-		drawText(1, 50, 50, RGBA8_MAXALPHA(0, 0, 0), "dicks");
+		drawBitmap(centerX(inventory->width), 120, inventory);
+		drawBitmapA(200, 550, optionblock, RGBA8_MAXALPHA(0, 0xFF, 0));
 
         gfxFlushBuffers();
         gfxSwapBuffers();
