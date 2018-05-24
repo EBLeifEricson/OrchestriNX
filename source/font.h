@@ -1,7 +1,12 @@
 #ifndef FONT_H
 #define FONT_H
 
-#include <stdint.h>
+typedef union {
+    uint32_t abgr;
+    struct {
+        uint8_t r,g,b,a;
+    };
+} color_t;
 
 typedef struct {
     uint8_t magic[4]; // 'fFNT'
@@ -31,26 +36,27 @@ typedef struct {
 
 typedef struct {
     uint8_t width, height;
-    int8_t posX, posY, advance;
+    int8_t posX, posY, advance, pitch;
     const uint8_t* data;
 } glyph_t;
 
-typedef union {
-    uint32_t abgr;
-    struct {
-        uint8_t r,g,b,a;
-    };
-} color_t;
+//extern const ffnt_header_t tahoma24_nxfnt;//These tahoma fonts aren't used anymore.
+//extern const ffnt_header_t tahoma12_nxfnt;
+/*extern const ffnt_header_t interuimedium20_nxfnt;
+extern const ffnt_header_t interuimedium30_nxfnt;
+extern const ffnt_header_t interuiregular14_nxfnt;
+extern const ffnt_header_t interuiregular18_nxfnt;*/
+//#define tahoma24 &tahoma24_nxfnt
+//#define tahoma12 &tahoma12_nxfnt
+#define interuimedium20 2//&interuimedium20_nxfnt
+#define interuimedium30 3//&interuimedium30_nxfnt
+#define interuiregular14 0//&interuiregular14_nxfnt
+#define interuiregular18 1//&interuiregular18_nxfnt
 
-#ifdef SWITCH
-    extern const ffnt_header_t tahoma24_nxfnt;
-    #define tahoma24 &tahoma24_nxfnt
-#else
-    extern ffnt_header_t* tahoma24;
+void DrawText(u32 font, uint32_t x, uint32_t y, color_t clr, const char* text);
+void DrawTextTruncate(u32 font, uint32_t x, uint32_t y, color_t clr, const char* text, uint32_t max_width, const char* end_text);
+void GetTextDimensions(u32 font, const char* text, uint32_t* width_out, uint32_t* height_out);
+bool fontInitialize(void);
+void fontExit();
+
 #endif
-
-void LoadFont(ffnt_header_t** font, const char* fname);
-void DrawText(const ffnt_header_t* font, uint32_t x, uint32_t y, color_t clr, const char* text);
-void DrawTextTruncate(const ffnt_header_t* font, uint32_t x, uint32_t y, color_t clr, const char* text, uint32_t max_width, const char* end_text);
-
-#endif // FONT_H

@@ -17,9 +17,10 @@ void drawPixel(int x, int y, u32 color);
 void drawLine(int x1, int y1, int x2, int y2, u32 color);
 void drawRectangle(int x1, int y1, int x2, int y2, u32 color);
 void drawFillRect(int x1, int y1, int x2, int y2, u32 color);
+void drawBitmapA(int x, int y, Bitmap* bmp, u32 alpha);
 void drawBitmap(int x, int y, Bitmap* bmp);
-void drawText(const ffnt_header_t* font, int x, int y, u32 color, const char* str);
-void drawTextFormat(const ffnt_header_t* font, int x, int y, u32 color, const char* str, ...);
+void drawText(u32 font, int x, int y, u32 color, const char* str);
+void drawTextFormat(u32 font, int x, int y, u32 color, const char* str, ...);
 
 Bitmap* openFileBitmap(const char* path, int width, int height);
 

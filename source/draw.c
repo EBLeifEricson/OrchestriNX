@@ -4,6 +4,7 @@
 #include <switch.h>
 
 #include "draw.h"
+#include "font.h"
 
 static u32* framebuf;
 static u32 fbwidth;
@@ -57,12 +58,25 @@ void drawFillRect(int x1, int y1, int x2, int y2, u32 color) {
 }
 
 void drawBitmap(int x, int y, Bitmap* bmp) {
-    int xx, yy;
-    for (yy = y; yy < y + bmp->height; ++yy) {
-        for (xx = x; xx < x + bmp->width; ++xx) {
-            if (xx >= 0 && xx < fbwidth && yy >= 0 && yy < fbheight) {
-                int pos = yy * fbwidth + xx;
-                framebuf[pos] = RGBA8_MAXALPHA(bmp->buf[pos*3+0], bmp->buf[pos*3+1], bmp->buf[pos*3+2]);
+    for (int yy = 0; yy < bmp->height; ++yy) {
+        for (int xx = 0; xx < bmp->width; ++xx) {
+            if (x >= 0 && xx+x < fbwidth && y >= 0 && yy+y < fbheight) {
+				int pos = yy*(bmp->width)+xx;
+				drawPixel(xx+x, yy+y, RGBA8_MAXALPHA(bmp->buf[pos*3+0], bmp->buf[pos*3+1], bmp->buf[pos*3+2]));
+            }
+        }
+    }
+}
+
+void drawBitmapA(int x, int y, Bitmap* bmp, u32 alpha) {
+	for (int yy = 0; yy < bmp->height; ++yy) {
+        for (int xx = 0; xx < bmp->width; ++xx) {
+            if (x >= 0 && xx+x < fbwidth && y >= 0 && yy+y < fbheight) {
+				int pos = yy*(bmp->width)+xx;
+				u32 curralpha = RGBA8_MAXALPHA(bmp->buf[pos*3+0], bmp->buf[pos*3+1], bmp->buf[pos*3+2]);
+				if (curralpha != alpha) {
+					drawPixel(xx+x, yy+y, RGBA8_MAXALPHA(bmp->buf[pos*3+0], bmp->buf[pos*3+1], bmp->buf[pos*3+2]));
+				}
             }
         }
     }
@@ -90,13 +104,13 @@ Bitmap* openFileBitmap(const char* path, int width, int height) {
 	return bitmap;
 }
 
-void drawText(const ffnt_header_t* font, int x, int y, u32 color, const char* str) {
+void drawText(u32 font, int x, int y, u32 color, const char* str) {
     color_t clr;
     clr.abgr = color;
     DrawText(font, x, y, clr, str);
 }
 
-void drawTextFormat(const ffnt_header_t* font, int x, int y, u32 color, const char* str, ...) {
+void drawTextFormat(u32 font, int x, int y, u32 color, const char* str, ...) {
     char buffer[256];
     va_list valist;
     va_start(valist, str);

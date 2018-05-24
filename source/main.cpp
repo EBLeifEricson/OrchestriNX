@@ -300,17 +300,18 @@ int main(int argc, char **argv)
 	// Init graphics
     gfxInitDefault();
 	
-	consoleInit(NULL);
+	//consoleInit(NULL);
 	
 	printf("OrchestriNX by LeifEricson\n");
 	
 	// TODO: Load font
+	fontInitialize();
 	
 	// TODO: Load textures and instrument icons
 	
 	// Temp background from the 3DS version, a new HD one will have to be made
 	printf("Opening test bitmap...\n");
-	Bitmap* background_temp = openFileBitmap("/switch/orchestrinx/res/oldbg_400_240.bin", 400, 240);
+	Bitmap* background_temp = openFileBitmap("/switch/orchestrinx/res/oldbg_1280_720.bin", 1280, 720);
 	if (!background_temp) {
 		printf("Error opening bitmap\n");
 		fflush(stdout);
@@ -322,6 +323,10 @@ int main(int argc, char **argv)
 	}
 	for (int i = 0; i < 300; i+=3) {
 		printf("%d%d%d ", background_temp->buf[i], background_temp->buf[i+1], background_temp->buf[i+2]);
+	}
+	Bitmap* iicons[INSTRUMENTCOUNT];
+	for (u32 i = 0; i < INSTRUMENTCOUNT; i++) {
+		iicons[i] = openFileBitmap(("/switch/orchestrinx/res/instruments/"+instruments[i].name+".bin").c_str(), 48, 48);
 	}
 	
 	printf("\nCreating directory structure...\n");
@@ -402,14 +407,20 @@ int main(int argc, char **argv)
 			break;
 		}
 		
-		//drawStart();
-		//drawBitmap(400, 240, background_temp);
+		drawStart();
+		drawClearScreen(RGBA8_MAXALPHA(0, 0, 0));
+		drawBitmap(0, 0, background_temp);
+		for (int i = 0; i < INSTRUMENTCOUNT; ++i) {
+			drawBitmapA(48*i, 5, iicons[i], RGBA8_MAXALPHA(0, 0xFF, 0));
+		}
+		drawText(1, 50, 50, RGBA8_MAXALPHA(0, 0, 0), "dicks");
 
         gfxFlushBuffers();
         gfxSwapBuffers();
         gfxWaitForVsync();
     }
 
+	fontExit();
     gfxExit();
     return 0;
 }
