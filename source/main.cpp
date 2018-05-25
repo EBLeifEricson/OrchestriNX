@@ -391,11 +391,11 @@ int main(int argc, char **argv)
 
 
         //hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
-		u32 keys = hidKeysDown(CONTROLLER_P1_AUTO);
-        u32 released = hidKeysUp(CONTROLLER_P1_AUTO);
-		u32 held = hidKeysHeld(CONTROLLER_P1_AUTO);
+		u64 keys = hidKeysDown(CONTROLLER_P1_AUTO);
+        u64 released = hidKeysUp(CONTROLLER_P1_AUTO);
+		u64 held = hidKeysHeld(CONTROLLER_P1_AUTO);
 		
-		u32 keyset[MAXNOTES];
+		u64 keyset[MAXNOTES];
 
         memcpy(keyset, notesets[instruments[currentinstrument].nset].keys, MAXNOTES * sizeof(u32));
 		
@@ -404,15 +404,59 @@ int main(int argc, char **argv)
 			break;
 		}
 		
+		// Switch instrument
+		if ((keys & KEY_PLUS) && (!invOpen)) {
+			//sourcePlay(menuOpen);
+			invOpen = true;
+			while (invOpen && appletMainLoop()) {
+                hidScanInput();
+                u32 keys = hidKeysDown(CONTROLLER_P1_AUTO);
+
+                if (keys & KEY_B) invOpen = false; // Close inventory
+				
+				drawStart();
+				drawClearScreen(RGBA8_MAXALPHA(0, 0, 0));
+
+                //drawBitmap(0, 0, background_temp);
+				drawBitmap(centerX(inventory->width), invYPos, inventory);
+				if (invYPos == 0) {
+					for (int i = 0; i < INSTRUMENTCOUNT; ++i) {
+						int xPos = 96*(i%5)+4+centerX(inventory->width);
+						int yPos = 96*((int)(i/5)%4)+5;
+						drawBitmapA(xPos, yPos, iicons[i], RGBA8_MAXALPHA(0, 0xFF, 0));
+						if (false) {
+							//sourcePlay(menuSelect);
+							currentinstrument = i;
+							instrumentInit(currentinstrument);
+							playingsong = "";
+							invOpen = false;
+						}
+					}
+				}
+				else invYPos += 10;
+                gfxFlushBuffers();
+				gfxSwapBuffers();
+				gfxWaitForVsync();
+				
+            }
+			invOpen = false;
+			// Slide inventory sprite back up
+			while (invYPos > -240) {
+				drawStart();
+				drawClearScreen(RGBA8_MAXALPHA(0, 0, 0));
+				drawBitmap(0, 0, background_temp);
+				drawBitmap(36, invYPos, inventory);
+				gfxFlushBuffers();
+				gfxSwapBuffers();
+				gfxWaitForVsync();
+				invYPos -= 10;
+			}
+		}
+		
 		drawStart();
 		drawClearScreen(RGBA8_MAXALPHA(0, 0, 0));
 		drawBitmap(0, 0, background_temp);
-		for (int i = 0; i < INSTRUMENTCOUNT; ++i) {
-			drawBitmapA(48*2*i, 5, iicons[i], RGBA8_MAXALPHA(0, 0xFF, 0));
-		}
-		drawBitmap(centerX(inventory->width), 120, inventory);
-		drawBitmapA(200, 550, optionblock, RGBA8_MAXALPHA(0, 0xFF, 0));
-
+		
         gfxFlushBuffers();
         gfxSwapBuffers();
         gfxWaitForVsync();
